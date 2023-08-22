@@ -12,17 +12,6 @@ const getProducts = async (req, res) => {
 	}
 }
 
-const addProduct = async (req, res) => {
-	const { name, sku, desc, type, date } = req.body
-	try {
-		const product = await Product.create({ name, sku, desc, type, date })
-		res.send(product)
-	} catch (error) {
-		console.error("Error creating product: " + error.message)
-		res.status(500).send("Error creating product")
-	}
-}
-
 const saveProducts = async (req, res) => {
 	const productsToUpdate = req.body
 	console.log("all the product comes from req.body ", productsToUpdate)
@@ -58,7 +47,7 @@ const saveProducts = async (req, res) => {
 				await Product.findByIdAndDelete(existingProduct._id)
 			}
 		})
-		
+
 		res.status(200).json(updatedProducts)
 	} catch (error) {
 		console.error("Error updating/creating products: " + error.message)
@@ -66,4 +55,4 @@ const saveProducts = async (req, res) => {
 	}
 }
 
-module.exports = { addProduct, getProducts, saveProducts }
+module.exports = { getProducts, saveProducts }
