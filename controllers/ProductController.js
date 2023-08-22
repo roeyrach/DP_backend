@@ -14,7 +14,6 @@ const getProducts = async (req, res) => {
 
 const saveProducts = async (req, res) => {
 	const productsToUpdate = req.body
-	console.log("all the product comes from req.body ", productsToUpdate)
 
 	try {
 		// Find all existing products in the database
