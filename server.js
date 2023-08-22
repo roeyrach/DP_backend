@@ -1,9 +1,8 @@
 const express = require("express")
 const mongoose = require("mongoose")
+const cors = require("cors")
 require("dotenv").config()
 const app = express()
-
-const uri = process.env.URI
 
 // Middleware: Logger
 app.use((req, res, next) => {
@@ -13,6 +12,14 @@ app.use((req, res, next) => {
 
 // Middleware: Body Parser
 app.use(express.json())
+
+app.use(cors())
+
+const ProductRoute = require("./routes/ProductRoute")
+
+app.use("/api", ProductRoute)
+
+const uri = process.env.URI
 
 async function connectMongoDB() {
 	try {
