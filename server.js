@@ -38,6 +38,6 @@ app.use((err, req, res, next) => {
 	res.status(500).send("Something went wrong!")
 })
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 5050
 
 app.listen(PORT, () => console.log(`Server listen on port ${PORT}`))
