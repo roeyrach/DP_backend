@@ -5,7 +5,7 @@ const getProducts = async (req, res) => {
 		const products = await Product.find()
 		if (res.statusCode === 200) {
 			res.status(200).json(products)
-			console.log(`Number of products: ${products.length}`)
+			console.error(`Number of products: ${products.length}`)
 		}
 	} catch (error) {
 		res.status(500).json({ error: "Server error" })
@@ -14,21 +14,56 @@ const getProducts = async (req, res) => {
 
 const addProduct = async (req, res) => {
 	const { name, sku, desc, type, date } = req.body
-	// const [name, sku, desc, type, date] = [
-	// 	"name",
-	// 	"sku",
-	// 	"desc",
-	// 	"type",
-	// 	new Date(),
-	// ]
-
 	try {
 		const product = await Product.create({ name, sku, desc, type, date })
 		res.send(product)
 	} catch (error) {
-		console.log("Error creating product: " + error.message)
+		console.error("Error creating product: " + error.message)
 		res.status(500).send("Error creating product")
 	}
 }
 
-module.exports = { addProduct, getProducts }
+const saveProducts = async (req, res) => {
+	const productsToUpdate = req.body
+	console.log("all the product comes from req.body ", productsToUpdate)
+
+	try {
+		// Find all existing products in the database
+		const existingProducts = await Product.find()
+
+		const updatedProducts = await Promise.all(
+			productsToUpdate.map(async (productData) => {
+				const { _id, ...updateData } = productData
+
+				if (_id) {
+					// If _id is provided, update the existing product
+					const updatedProduct = await Product.findByIdAndUpdate(_id, updateData, {
+						new: true,
+					})
+					return updatedProduct
+				} else {
+					// If _id is not provided, create a new product
+					const newProduct = await Product.create(updateData)
+					return newProduct
+				}
+			})
+		)
+
+		// Delete products that are not present in the req.body
+		existingProducts.forEach(async (existingProduct) => {
+			const isPresent = updatedProducts.some((updatedProduct) =>
+				updatedProduct._id.equals(existingProduct._id)
+			)
+			if (!isPresent) {
+				await Product.findByIdAndDelete(existingProduct._id)
+			}
+		})
+		
+		res.status(200).json(updatedProducts)
+	} catch (error) {
+		console.error("Error updating/creating products: " + error.message)
+		res.status(500).send("Error updating/creating products")
+	}
+}
+
+module.exports = { addProduct, getProducts, saveProducts }
